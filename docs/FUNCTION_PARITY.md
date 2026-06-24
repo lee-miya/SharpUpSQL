@@ -2,18 +2,18 @@
 
 Tracks parity between [PowerUpSQL v1.105.0](https://github.com/NetSPI/PowerUpSQL) (`PowerUpSQL.psd1` `FunctionsToExport`) and SharpUpSQL.
 
-**Source of truth:** PowerUpSQL module manifest 鈥?**108 exported functions** (plan groups ~97 core SQL commands; the five `Get-Domain*` / `Create-SQLFile*` / `Get-SQLAssemblyFile` helpers and threaded variants are included here for complete coverage).
+**Source of truth:** PowerUpSQL module manifest — **108 exported functions** (plan groups ~97 core SQL commands; the five `Get-Domain*` / `Create-SQLFile*` / `Get-SQLAssemblyFile` helpers and threaded variants are included here for complete coverage).
 
 ## Status Legend
 
 | Symbol | Meaning |
 |--------|---------|
 | ⬜| Not started |
-| 馃煛 | In progress |
-| 鉁?| Implemented and lab-verified |
-| 鉂?| Blocked / N/A in lab |
-| 馃敀 | Requires domain-joined lab (see [lab/README.md](../lab/README.md)) |
-| 鈿狅笍 | Implemented; lab test pending |
+| 🟡 | In progress |
+| ✅ | Implemented and lab-verified |
+| ❌ | Blocked / N/A in lab |
+| 🔒 | Requires domain-joined lab (see [lab/README.md](../lab/README.md)) |
+| ⚠️ | Implemented; lab test pending |
 
 ## Summary
 
@@ -45,7 +45,7 @@ Each function row references which lab profile can validate it:
 | **A** | `SQL-PRIMARY` (`localhost,1433`) | Sysadmin, weak logins, audit fixtures, OS cmd channels |
 | **B** | `SQL-LINKED` (`localhost,1434`) | Linked-server target (multi-hop, RPC) |
 | **C** | `SQL-LOWPRIV` (login on A) | Low-privilege + `IMPERSONATE` escalation |
-| **D** | Domain controller + AD-linked SQL | AD recon via `OPENQUERY` / ADSI 馃敀 |
+| **D** | Domain controller + AD-linked SQL | AD recon via `OPENQUERY` / ADSI 🔒 |
 
 See [lab/README.md](../lab/README.md) for setup.
 
@@ -55,21 +55,21 @@ See [lab/README.md](../lab/README.md) for setup.
 
 | # | Function | Phase | C# | Unit | Lab | Snapshot | Lab Profile | Notes |
 |--:|----------|------:|:--:|:----:|:---:|:--------:|-------------|-------|
-| 1 | `Get-SQLInstanceFile` | 1 | 鉁?| ⬜| ⬜| ⬜| Local | Parse `sqlservr.exe` / registry paths |
-| 2 | `Get-SQLInstanceLocal` | 1 | 鉁?| ⬜| ⬜| ⬜| Local | Local services / registry |
-| 3 | `Get-SQLInstanceDomain` | 1 | 鉁?| ⬜| ⬜| ⬜| D 馃敀 | SPN / AD DNS; stub OK on standalone |
-| 4 | `Get-SQLInstanceScanUDP` | 1 | 鉁?| ⬜| ⬜| ⬜| A,B | UDP 1434 browser |
-| 5 | `Get-SQLInstanceScanUDPThreaded` | 1 | 鉁?| ⬜| ⬜| ⬜| A,B | `-Threads` batch |
-| 6 | `Get-SQLInstanceBroadcast` | 1 | 鉁?| ⬜| ⬜| ⬜| A,B | UDP broadcast discovery |
+| 1 | `Get-SQLInstanceFile` | 1 | ✅| ⬜| ⬜| ⬜| Local | Parse `sqlservr.exe` / registry paths |
+| 2 | `Get-SQLInstanceLocal` | 1 | ✅| ⬜| ⬜| ⬜| Local | Local services / registry |
+| 3 | `Get-SQLInstanceDomain` | 1 | ✅| ⬜| ⬜| ⬜| D 🔒 | SPN / AD DNS; stub OK on standalone |
+| 4 | `Get-SQLInstanceScanUDP` | 1 | ✅| ⬜| ⬜| ⬜| A,B | UDP 1434 browser |
+| 5 | `Get-SQLInstanceScanUDPThreaded` | 1 | ✅| ⬜| ⬜| ⬜| A,B | `-Threads` batch |
+| 6 | `Get-SQLInstanceBroadcast` | 1 | ✅| ⬜| ⬜| ⬜| A,B | UDP broadcast discovery |
 
 ## Core (Phase 1)
 
 | # | Function | Phase | C# | Unit | Lab | Snapshot | Lab Profile | Notes |
 |--:|----------|------:|:--:|:----:|:---:|:--------:|-------------|-------|
-| 7 | `Get-SQLConnectionTest` | 1 | 鉁?| ⬜| ⬜| ⬜| A,B,C | Win + SQL auth |
-| 8 | `Get-SQLConnectionTestThreaded` | 1 | 鉁?| ⬜| ⬜| ⬜| A,B,C | Pipeline / `-Threads` |
-| 9 | `Get-SQLQuery` | 1 | 鈿狅笍 | ⬜| ⬜| ⬜| A | Arbitrary T-SQL |
-| 10 | `Get-SQLQueryThreaded` | 1 | 鈿狅笍 | ⬜| ⬜| ⬜| A,B | Multi-instance |
+| 7 | `Get-SQLConnectionTest` | 1 | ✅| ⬜| ⬜| ⬜| A,B,C | Win + SQL auth |
+| 8 | `Get-SQLConnectionTestThreaded` | 1 | ✅| ⬜| ⬜| ⬜| A,B,C | Pipeline / `-Threads` |
+| 9 | `Get-SQLQuery` | 1 | ⚠️ | ⬜| ⬜| ⬜| A | Arbitrary T-SQL |
+| 10 | `Get-SQLQueryThreaded` | 1 | ⚠️ | ⬜| ⬜| ⬜| A,B | Multi-instance |
 | 11 | `Invoke-SQLOSCmd` | 1/4 | ⚠️ | ⬜| ⬜| ⬜| A | xp_cmdshell baseline |
 
 ## Common / Enumeration (Phase 2)
@@ -125,7 +125,7 @@ See [lab/README.md](../lab/README.md) for setup.
 | # | Function | Phase | C# | Unit | Lab | Snapshot | Lab Profile | Notes |
 |--:|----------|------:|:--:|:----:|:---:|:--------:|-------------|-------|
 | 55 | `Get-SQLFuzzDatabaseName` | 2 | ⬜| ⬜| ⬜| ⬜| A | |
-| 56 | `Get-SQLFuzzDomainAccount` | 2 | ⬜| ⬜| ⬜| ⬜| D 馃敀 | |
+| 56 | `Get-SQLFuzzDomainAccount` | 2 | ⬜| ⬜| ⬜| ⬜| D 🔒 | |
 | 57 | `Get-SQLFuzzObjectName` | 2 | ⬜| ⬜| ⬜| ⬜| A | |
 | 58 | `Get-SQLFuzzServerLogin` | 2 | ⬜| ⬜| ⬜| ⬜| A | |
 
@@ -168,7 +168,7 @@ See [lab/README.md](../lab/README.md) for setup.
 | 86 | `Invoke-SQLAuditDefaultLoginPw` | 3 | ⚠️ | ⬜ | ⬜ | ⬜ | A | `-Exploit` |
 | 87 | `Invoke-SQLAuditPrivAutoExecSp` | 3 | ⚠️ | ⬜ | ⬜ | ⬜ | A | `-Exploit` |
 
-## Attack / Escalation (Phase 3鈥?)
+## Attack / Escalation (Phase 3–4)
 
 | # | Function | Phase | C# | Unit | Lab | Snapshot | Lab Profile | Notes |
 |--:|----------|------:|:--:|:----:|:---:|:--------:|-------------|-------|
@@ -199,7 +199,7 @@ See [lab/README.md](../lab/README.md) for setup.
 | 102 | `Get-SQLPersistRegDebugger` | 5 | ⚠️ | ⬜ | ⬜ | ⬜ | A | `-Exploit` |
 | 103 | `Get-SQLPersistTriggerDDL` | 5 | ⚠️ | ⬜ | ⬜ | ⬜ | A | `-Exploit` |
 
-## Helper / External (Phase 4鈥?)
+## Helper / External (Phase 4–5)
 
 | # | Function | Phase | C# | Unit | Lab | Snapshot | Lab Profile | Notes |
 |--:|----------|------:|:--:|:----:|:---:|:--------:|-------------|-------|
@@ -211,7 +211,7 @@ See [lab/README.md](../lab/README.md) for setup.
 
 ---
 
-## Minimal Enhancements (Phase 6 鈥?not in PowerUpSQL)
+## Minimal Enhancements (Phase 6 — not in PowerUpSQL)
 
 | # | Capability | Priority | C# | Lab | Notes |
 |--:|------------|----------|:--:|:---:|-------|
@@ -249,10 +249,10 @@ Baseline outputs live under [`lab/snapshots/`](../lab/snapshots/). Regenerate af
 
 When implementing a function:
 
-1. Set **C#** to 馃煛 while coding, 鉁?when merged.
-2. Add/update unit test 鈫?**Unit** column.
-3. Run against lab profile 鈫?**Lab** 鉁?or document **鉂?* / **馃敀** reason.
-4. Diff CLI output vs golden snapshot 鈫?**Snapshot** 鉁?
+1. Set **C#** to 🟡 while coding, ✅ when merged.
+2. Add/update unit test → **Unit** column.
+3. Run against lab profile → **Lab** ✅ or document **❌** / **🔒** reason.
+4. Diff CLI output vs golden snapshot → **Snapshot** ✅
 5. Update summary counts at top of this file.
 
 _Last updated: Phase 7 — regression suite (`tests/Run-Regression.ps1`), README, COMMAND_REFERENCE.md; 104/108 PowerUpSQL CLI commands + 8 enhancements._
