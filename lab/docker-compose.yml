@@ -1,0 +1,42 @@
+# Optional Docker-based lab (Linux SQL Server containers).
+# Native Windows named instances are preferred for SharpUpSQL (.NET Framework 4.8).
+#
+# Usage:
+#   cd lab && docker compose up -d
+#   docker compose exec sql-primary /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "LabAdmin123!" -C -Q "SELECT @@VERSION"
+
+services:
+  sql-primary:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sharpupsql-primary
+    hostname: sql-primary
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "LabAdmin123!"
+      MSSQL_PID: Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - ./sql:/scripts:ro
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "LabAdmin123!" -C -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  sql-linked:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sharpupsql-linked
+    hostname: sql-linked
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "LabAdmin123!"
+      MSSQL_PID: Developer
+    ports:
+      - "1434:1433"
+    volumes:
+      - ./sql:/scripts:ro
+    depends_on:
+      sql-primary:
+        condition: service_healthy

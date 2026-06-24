@@ -1,0 +1,23 @@
+# Lab config with credentials — do not commit
+lab/config/lab.settings.json
+
+# Build output
+artifacts/
+**/bin/
+**/obj/
+
+# IDE / OS
+.vs/
+*.user
+*.suo
+Thumbs.db
+Desktop.ini
+
+# Temp / scratch files
+*.tmp
+*.bak
+*.log
+
+# Generated snapshots (optional — regenerate locally)
+# lab/snapshots/**/*.txt
+# lab/snapshots/manifest.json

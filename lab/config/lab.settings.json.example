@@ -1,0 +1,13 @@
+{
+  "PrimaryInstance": "localhost,1433",
+  "LinkedInstance": "localhost,1434",
+  "SaPassword": "LabAdmin123!",
+  "LinkedServerName": "LINKED_SRV",
+  "LowPrivLogin": "lowpriv_reader",
+  "LowPrivPassword": "WeakPass123!",
+  "ImpersonateLogin": "impersonate_sa",
+  "ImpersonatePassword": "Impersonate1!",
+  "DatabaseName": "LabDB",
+  "SqlCmdPath": "sqlcmd",
+  "PowerUpSQLModulePath": null
+}
