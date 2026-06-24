@@ -1,6 +1,6 @@
 # SharpUpSQL Function Parity Matrix
 
-Tracks parity between [PowerUpSQL v1.105.0](https://github.com/NetSPI/PowerUpSQL) (`PowerUpSQL.psd1` `FunctionsToExport`) and SharpUpSQL.
+Tracks parity between [PowerUpSQL v1.105.0](https://github.com/NetSPI/PowerUpSQL) (`PowerUpSQL.psd1` `FunctionsToExport`) and SharpUpSQL. For porting goals, architecture, and upgrade workflow, see [PORTING_PLAN.md](PORTING_PLAN.md).
 
 **Source of truth:** PowerUpSQL module manifest — **108 exported functions** (plan groups ~97 core SQL commands; the five `Get-Domain*` / `Create-SQLFile*` / `Get-SQLAssemblyFile` helpers and threaded variants are included here for complete coverage).
 

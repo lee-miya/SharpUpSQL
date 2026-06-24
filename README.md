@@ -109,6 +109,8 @@ See [lab/README.md](lab/README.md). After setup:
 
 Full PowerUpSQL ↔ SharpUpSQL mapping, implementation status, and lab profiles: **[docs/COMMAND_REFERENCE.md](docs/COMMAND_REFERENCE.md)** and **[docs/FUNCTION_PARITY.md](docs/FUNCTION_PARITY.md)**.
 
+Long-term porting goals, architecture, and upgrade workflow: **[docs/PORTING_PLAN.md](docs/PORTING_PLAN.md)**.
+
 ## Project layout
 
 ```text
@@ -122,6 +124,7 @@ SharpUpSQL/
 │   └── Run-Regression.ps1   # Full regression entry point
 ├── lab/                     # SQL Server lab scripts and golden snapshots
 ├── docs/
+│   ├── PORTING_PLAN.md      # Porting roadmap and upgrade workflow
 │   ├── FUNCTION_PARITY.md   # Implementation and test status matrix
 │   └── COMMAND_REFERENCE.md # User-facing command对照表
 └── build.ps1
