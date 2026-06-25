@@ -140,6 +140,7 @@ $coreSources = @(
     "$root\src\SharpUpSQL.Core\Execution\ConnectionTestResult.cs",
     "$root\src\SharpUpSQL.Core\Execution\ConnectionTester.cs",
     "$root\src\SharpUpSQL.Core\Execution\QueryExecutor.cs",
+    "$root\src\SharpUpSQL.Core\Execution\SqlPermissionHelper.cs",
     "$root\src\SharpUpSQL.Core\Helpers\InstanceHelper.cs",
     "$root\src\SharpUpSQL.Core\Helpers\InstanceParser.cs",
     "$root\src\SharpUpSQL.Core\Helpers\LuhnHelper.cs",

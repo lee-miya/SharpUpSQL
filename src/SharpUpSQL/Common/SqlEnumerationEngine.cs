@@ -173,24 +173,15 @@ ORDER BY a.database_id";
                 ? string.Empty
                 : " WHERE a.name LIKE " + SqlValueFormatter.QuoteLiteral("%" + databaseLinkName + "%");
 
-            var query = @"
-SELECT
-    CAST(a.server_id AS VARCHAR(20)) AS DatabaseLinkId,
-    a.name AS DatabaseLinkName,
-    CASE a.server_id WHEN 0 THEN 'Local' ELSE 'Remote' END AS DatabaseLinkLocation,
-    a.product AS Product,
-    a.provider AS Provider,
-    a.catalog AS [Catalog],
-    CASE b.uses_self_credential WHEN 1 THEN 'Uses Self Credentials' ELSE c.name END AS LocalLogin,
-    b.remote_name AS RemoteLoginName,
-    CAST(a.is_rpc_out_enabled AS VARCHAR(5)) AS is_rpc_out_enabled,
-    CAST(a.is_data_access_enabled AS VARCHAR(5)) AS is_data_access_enabled,
-    CONVERT(VARCHAR(30), a.modify_date, 120) AS modify_date
-FROM master.sys.servers a
-LEFT JOIN master.sys.linked_logins b ON a.server_id = b.server_id
-LEFT JOIN master.sys.server_principals c ON c.principal_id = b.local_principal_id" + filter;
+            var rows = SqlPermissionHelper.ExecuteQueryWithFallback(
+                options,
+                BuildSqlServerLinkQuery(filter, true),
+                BuildSqlServerLinkQuery(filter, false),
+                "linked_logins",
+                verbose,
+                suppressVerbose,
+                "SELECT on master.sys.linked_logins denied; returning linked servers without login mapping details.");
 
-            var rows = QueryExecutor.ExecuteQuery(options, query, verbose, suppressVerbose);
             foreach (var row in rows)
             {
                 var result = new SqlServerLinkResult
@@ -329,7 +320,7 @@ ORDER BY t.TABLE_SCHEMA, t.TABLE_NAME",
                     db.Replace("]", "]]"),
                     tableFilter);
 
-                foreach (var row in QueryExecutor.ExecuteQuery(dbOptions, query, verbose, true))
+                foreach (var row in EnumerateRows(dbOptions, query, verbose, true))
                 {
                     var result = new SqlTableResult
                     {
@@ -434,7 +425,7 @@ ORDER BY t.TABLE_SCHEMA, t.TABLE_NAME, c.ORDINAL_POSITION",
                     db.Replace("]", "]]"),
                     filters);
 
-                foreach (var row in QueryExecutor.ExecuteQuery(dbOptions, query, verbose, true))
+                foreach (var row in EnumerateRows(dbOptions, query, verbose, true))
                 {
                     var result = new SqlColumnResult
                     {
@@ -505,8 +496,14 @@ WHERE {1} IS NOT NULL",
                     SqlValueFormatter.BracketIdentifier(col.SchemaName),
                     SqlValueFormatter.BracketIdentifier(col.TableName));
 
-                var sampleRows = QueryExecutor.ExecuteQuery(dbOptions, sampleQuery, verbose, true);
-                var countRows = QueryExecutor.ExecuteQuery(dbOptions, countQuery, verbose, true);
+                List<Dictionary<string, object>> sampleRows;
+                List<Dictionary<string, object>> countRows;
+                if (!SqlPermissionHelper.TryExecuteQuery(dbOptions, sampleQuery, verbose, true, out sampleRows)
+                    || !SqlPermissionHelper.TryExecuteQuery(dbOptions, countQuery, verbose, true, out countRows))
+                {
+                    continue;
+                }
+
                 var sample = sampleRows.Count > 0 ? SqlValueFormatter.Format(sampleRows[0]["Sample"]) : string.Empty;
                 var rowCount = countRows.Count > 0 ? SqlValueFormatter.Format(countRows[0]["RowCount"]) : "0";
 
@@ -556,37 +553,43 @@ WHERE {1} IS NOT NULL",
                 filters.Append(" AND steps.proxy_id <> 0");
             }
 
-            if (!string.IsNullOrEmpty(proxyCredential))
+            var includeProxyJoin = !string.IsNullOrEmpty(proxyCredential);
+            if (includeProxyJoin)
             {
                 filters.Append(" AND proxies.name LIKE ")
                     .Append(SqlValueFormatter.QuoteLiteral("%" + proxyCredential + "%"));
             }
 
-            var query = @"
-SELECT
-    steps.database_name AS DatabaseName,
-    CAST(job.job_id AS VARCHAR(50)) AS Job_Id,
-    job.name AS Job_Name,
-    job.description AS Job_Description,
-    SUSER_SNAME(job.owner_sid) AS Job_Owner,
-    CAST(steps.proxy_id AS VARCHAR(20)) AS Proxy_Id,
-    proxies.name AS Proxy_Credential,
-    CONVERT(VARCHAR(30), job.date_created, 120) AS Date_Created,
-    CAST(steps.last_run_date AS VARCHAR(20)) AS Last_Run_Date,
-    CAST(job.enabled AS VARCHAR(5)) AS Enabled,
-    steps.server AS [Server],
-    steps.step_name AS Step_Name,
-    steps.subsystem AS SubSystem,
-    steps.command AS Command
-FROM msdb.dbo.sysjobs job
-INNER JOIN msdb.dbo.sysjobsteps steps ON job.job_id = steps.job_id
-LEFT JOIN msdb.dbo.sysproxies proxies ON steps.proxy_id = proxies.proxy_id
-WHERE 1=1" + filters;
-
             var jobOptions = options.Clone();
             jobOptions.Database = "msdb";
 
-            foreach (var row in QueryExecutor.ExecuteQuery(jobOptions, query, verbose, suppressVerbose))
+            var filterText = filters.ToString();
+            List<Dictionary<string, object>> rows;
+            if (includeProxyJoin)
+            {
+                var proxyNameFilter = " AND proxies.name LIKE "
+                    + SqlValueFormatter.QuoteLiteral("%" + proxyCredential + "%");
+                var filtersWithoutProxyName = filterText.Replace(proxyNameFilter, string.Empty);
+
+                rows = SqlPermissionHelper.ExecuteQueryWithFallback(
+                    jobOptions,
+                    BuildSqlAgentJobQuery(filterText, true),
+                    BuildSqlAgentJobQuery(filtersWithoutProxyName, false),
+                    "sysproxies",
+                    verbose,
+                    suppressVerbose,
+                    "SELECT on msdb.dbo.sysproxies denied; returning agent jobs without proxy credential names.");
+            }
+            else
+            {
+                rows = QueryExecutor.ExecuteQuery(
+                    jobOptions,
+                    BuildSqlAgentJobQuery(filterText, false),
+                    verbose,
+                    suppressVerbose);
+            }
+
+            foreach (var row in rows)
             {
                 var result = new SqlAgentJobResult
                 {
@@ -619,13 +622,105 @@ WHERE 1=1" + filters;
             bool suppressVerbose,
             Func<Dictionary<string, object>, SqlGenericRowResult> map)
         {
-            foreach (var row in QueryExecutor.ExecuteQuery(options, query, verbose, suppressVerbose))
+            List<Dictionary<string, object>> rows;
+            if (!SqlPermissionHelper.TryExecuteQuery(options, query, verbose, suppressVerbose, out rows))
+            {
+                yield break;
+            }
+
+            foreach (var row in rows)
             {
                 var result = map(row);
                 result.Category = category;
                 SqlValueFormatter.StampInstance(result, instance);
                 yield return result;
             }
+        }
+
+        internal static IEnumerable<Dictionary<string, object>> EnumerateRows(
+            SqlConnectionOptions options,
+            string query,
+            VerboseWriter verbose,
+            bool suppressVerbose)
+        {
+            List<Dictionary<string, object>> rows;
+            if (!SqlPermissionHelper.TryExecuteQuery(options, query, verbose, suppressVerbose, out rows))
+            {
+                yield break;
+            }
+
+            foreach (var row in rows)
+            {
+                yield return row;
+            }
+        }
+
+        private static string BuildSqlServerLinkQuery(string filter, bool includeLinkedLogins)
+        {
+            if (includeLinkedLogins)
+            {
+                return @"
+SELECT
+    CAST(a.server_id AS VARCHAR(20)) AS DatabaseLinkId,
+    a.name AS DatabaseLinkName,
+    CASE a.server_id WHEN 0 THEN 'Local' ELSE 'Remote' END AS DatabaseLinkLocation,
+    a.product AS Product,
+    a.provider AS Provider,
+    a.catalog AS [Catalog],
+    CASE b.uses_self_credential WHEN 1 THEN 'Uses Self Credentials' ELSE c.name END AS LocalLogin,
+    b.remote_name AS RemoteLoginName,
+    CAST(a.is_rpc_out_enabled AS VARCHAR(5)) AS is_rpc_out_enabled,
+    CAST(a.is_data_access_enabled AS VARCHAR(5)) AS is_data_access_enabled,
+    CONVERT(VARCHAR(30), a.modify_date, 120) AS modify_date
+FROM master.sys.servers a
+LEFT JOIN master.sys.linked_logins b ON a.server_id = b.server_id
+LEFT JOIN master.sys.server_principals c ON c.principal_id = b.local_principal_id" + filter;
+            }
+
+            return @"
+SELECT
+    CAST(a.server_id AS VARCHAR(20)) AS DatabaseLinkId,
+    a.name AS DatabaseLinkName,
+    CASE a.server_id WHEN 0 THEN 'Local' ELSE 'Remote' END AS DatabaseLinkLocation,
+    a.product AS Product,
+    a.provider AS Provider,
+    a.catalog AS [Catalog],
+    CAST(NULL AS NVARCHAR(128)) AS LocalLogin,
+    CAST(NULL AS NVARCHAR(128)) AS RemoteLoginName,
+    CAST(a.is_rpc_out_enabled AS VARCHAR(5)) AS is_rpc_out_enabled,
+    CAST(a.is_data_access_enabled AS VARCHAR(5)) AS is_data_access_enabled,
+    CONVERT(VARCHAR(30), a.modify_date, 120) AS modify_date
+FROM master.sys.servers a" + filter;
+        }
+
+        private static string BuildSqlAgentJobQuery(string filters, bool includeProxyJoin)
+        {
+            var proxySelect = includeProxyJoin
+                ? "proxies.name AS Proxy_Credential"
+                : "CAST(NULL AS NVARCHAR(128)) AS Proxy_Credential";
+            var proxyJoin = includeProxyJoin
+                ? "\nLEFT JOIN msdb.dbo.sysproxies proxies ON steps.proxy_id = proxies.proxy_id"
+                : string.Empty;
+
+            return @"
+SELECT
+    steps.database_name AS DatabaseName,
+    CAST(job.job_id AS VARCHAR(50)) AS Job_Id,
+    job.name AS Job_Name,
+    job.description AS Job_Description,
+    SUSER_SNAME(job.owner_sid) AS Job_Owner,
+    CAST(steps.proxy_id AS VARCHAR(20)) AS Proxy_Id,
+    " + proxySelect + @",
+    CONVERT(VARCHAR(30), job.date_created, 120) AS Date_Created,
+    CAST(steps.last_run_date AS VARCHAR(20)) AS Last_Run_Date,
+    CAST(job.enabled AS VARCHAR(5)) AS Enabled,
+    steps.server AS [Server],
+    steps.step_name AS Step_Name,
+    steps.subsystem AS SubSystem,
+    steps.command AS Command
+FROM msdb.dbo.sysjobs job
+INNER JOIN msdb.dbo.sysjobsteps steps ON job.job_id = steps.job_id" + proxyJoin + @"
+WHERE 1=1" + filters;
         }
     }
 }
