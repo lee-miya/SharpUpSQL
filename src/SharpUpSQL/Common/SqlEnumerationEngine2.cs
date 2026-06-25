@@ -24,9 +24,9 @@ namespace SharpUpSQL.Common
 
             var query = @"
 SELECT
-    DB_NAME(dp.major_id) AS Name,
-    pr.name AS Value,
-    dp.permission_name AS Type,
+    DB_NAME(dp.major_id) AS [Name],
+    pr.name AS [Value],
+    dp.permission_name AS [Type],
     dp.state_desc AS Description
 FROM sys.database_permissions dp
 JOIN sys.database_principals pr ON dp.grantee_principal_id = pr.principal_id
@@ -62,7 +62,7 @@ WHERE 1=1" + dbFilter;
                 dbOptions.Database = db;
 
                 var query = @"
-SELECT name AS Name, type_desc AS Type, create_date AS CreateDate
+SELECT name AS [Name], type_desc AS [Type], create_date AS CreateDate
 FROM sys.database_principals
 WHERE type = 'R' AND is_fixed_role = 0";
 
@@ -97,9 +97,9 @@ WHERE type = 'R' AND is_fixed_role = 0";
 
                 var query = @"
 SELECT
-    USER_NAME(rm.member_principal_id) AS Name,
-    USER_NAME(rm.role_principal_id) AS Value,
-    rm.role_principal_id AS Type
+    USER_NAME(rm.member_principal_id) AS [Name],
+    USER_NAME(rm.role_principal_id) AS [Value],
+    rm.role_principal_id AS [Type]
 FROM sys.database_role_members rm";
 
                 foreach (var row in QueryExecutor.ExecuteQuery(dbOptions, query, verbose, suppressVerbose))
@@ -132,9 +132,9 @@ FROM sys.database_role_members rm";
 
                 var query = @"
 SELECT
-    name AS Name,
-    schema_id AS Type,
-    USER_NAME(principal_id) AS Value
+    name AS [Name],
+    schema_id AS [Type],
+    USER_NAME(principal_id) AS [Value]
 FROM sys.schemas";
 
                 foreach (var row in QueryExecutor.ExecuteQuery(dbOptions, query, verbose, suppressVerbose))
@@ -168,10 +168,10 @@ FROM sys.schemas";
 
                 var query = @"
 SELECT
-    name AS Name,
-    type_desc AS Type,
+    name AS [Name],
+    type_desc AS [Type],
     create_date AS CreateDate,
-    default_schema_name AS Value
+    default_schema_name AS [Value]
 FROM sys.database_principals
 WHERE type IN ('S','U','G','C','E','X')";
 
@@ -200,9 +200,9 @@ WHERE type IN ('S','U','G','C','E','X')";
         {
             var query = @"
 SELECT
-    name AS Name,
-    CAST(value AS VARCHAR(50)) AS Value,
-    CAST(value_in_use AS VARCHAR(50)) AS Type,
+    name AS [Name],
+    CAST(value AS VARCHAR(50)) AS [Value],
+    CAST(value_in_use AS VARCHAR(50)) AS [Type],
     description AS Description
 FROM sys.configurations";
 
@@ -230,8 +230,8 @@ FROM sys.configurations";
         {
             var query = @"
 SELECT
-    name AS Name,
-    credential_identity AS Value,
+    name AS [Name],
+    credential_identity AS [Value],
     create_date AS CreateDate,
     modify_date AS ModifyDate
 FROM sys.credentials";
@@ -260,9 +260,9 @@ FROM sys.credentials";
         {
             var query = @"
 SELECT
-    p.name AS Name,
+    p.name AS [Name],
     p.description AS Description,
-    p.is_enabled AS Value,
+    p.is_enabled AS [Value],
     p.date_created AS CreateDate,
     p.date_modified AS ModifyDate
 FROM msdb.dbo.syspolicy_policies p";
@@ -295,10 +295,10 @@ FROM msdb.dbo.syspolicy_policies p";
         {
             var query = @"
 SELECT
-    pr.name AS Name,
-    pe.permission_name AS Type,
+    pr.name AS [Name],
+    pe.permission_name AS [Type],
     pe.state_desc AS Description,
-    pe.class_desc AS Value
+    pe.class_desc AS [Value]
 FROM sys.server_permissions pe
 JOIN sys.server_principals pr ON pe.grantee_principal_id = pr.principal_id
 WHERE pr.name = SYSTEM_USER";
@@ -326,7 +326,7 @@ WHERE pr.name = SYSTEM_USER";
             bool suppressVerbose)
         {
             var query = @"
-SELECT name AS Name, type_desc AS Type, create_date AS CreateDate
+SELECT name AS [Name], type_desc AS [Type], create_date AS CreateDate
 FROM sys.server_principals
 WHERE type = 'R' AND is_fixed_role = 1";
 
@@ -353,9 +353,9 @@ WHERE type = 'R' AND is_fixed_role = 1";
         {
             var query = @"
 SELECT
-    sp.name AS Name,
-    sp2.name AS Value,
-    sp2.type_desc AS Type
+    sp.name AS [Name],
+    sp2.name AS [Value],
+    sp2.type_desc AS [Type]
 FROM sys.server_role_members rm
 JOIN sys.server_principals sp ON rm.member_principal_id = sp.principal_id
 JOIN sys.server_principals sp2 ON rm.role_principal_id = sp2.principal_id";
@@ -383,9 +383,9 @@ JOIN sys.server_principals sp2 ON rm.role_principal_id = sp2.principal_id";
         {
             var query = @"
 SELECT
-    CAST(session_id AS VARCHAR(20)) AS Name,
-    login_name AS Value,
-    host_name AS Type,
+    CAST(session_id AS VARCHAR(20)) AS [Name],
+    login_name AS [Value],
+    host_name AS [Type],
     program_name AS Description,
     status AS Extra1,
     CAST(connect_time AS VARCHAR(30)) AS CreateDate
@@ -523,8 +523,8 @@ WHERE is_user_process = 1";
 
                 var query = @"
 SELECT
-    SCHEMA_NAME(v.schema_id) AS Name,
-    v.name AS Value,
+    SCHEMA_NAME(v.schema_id) AS [Name],
+    v.name AS [Value],
     CONVERT(VARCHAR(30), v.create_date, 120) AS CreateDate,
     CONVERT(VARCHAR(30), v.modify_date, 120) AS ModifyDate
 FROM sys.views v";
@@ -557,9 +557,9 @@ FROM sys.views v";
 
             var query = @"
 SELECT
-    name AS Name,
+    name AS [Name],
     create_date AS CreateDate,
-    'tempdb' AS Value
+    'tempdb' AS [Value]
 FROM tempdb.sys.tables
 WHERE name LIKE '#%'";
 
@@ -606,8 +606,8 @@ WHERE name LIKE '#%'";
         {
             var query = @"
 SELECT
-    name AS Name,
-    CAST(is_state_enabled AS VARCHAR(5)) AS Value,
+    name AS [Name],
+    CAST(is_state_enabled AS VARCHAR(5)) AS [Value],
     create_date AS CreateDate,
     modify_date AS ModifyDate
 FROM sys.database_audit_specifications";
@@ -636,8 +636,8 @@ FROM sys.database_audit_specifications";
         {
             var query = @"
 SELECT
-    name AS Name,
-    CAST(is_state_enabled AS VARCHAR(5)) AS Value,
+    name AS [Name],
+    CAST(is_state_enabled AS VARCHAR(5)) AS [Value],
     create_date AS CreateDate,
     modify_date AS ModifyDate
 FROM sys.server_audit_specifications";
@@ -666,9 +666,9 @@ FROM sys.server_audit_specifications";
         {
             var query = @"
 SELECT
-    name AS Name,
-    clsid AS Value,
-    CAST(enabled AS VARCHAR(5)) AS Type
+    name AS [Name],
+    clsid AS [Value],
+    CAST(enabled AS VARCHAR(5)) AS [Type]
 FROM sys.oledb_providers";
 
             return SqlEnumerationEngine.GetGenericRows(
@@ -746,9 +746,9 @@ FROM sys.oledb_providers";
 
                 var query = @"
 SELECT
-    SCHEMA_NAME(p.schema_id) AS Name,
-    p.name AS Value,
-    p.type_desc AS Type,
+    SCHEMA_NAME(p.schema_id) AS [Name],
+    p.name AS [Value],
+    p.type_desc AS [Type],
     CONVERT(VARCHAR(30), p.create_date, 120) AS CreateDate,
     CONVERT(VARCHAR(30), p.modify_date, 120) AS ModifyDate
 FROM sys.procedures p
@@ -790,9 +790,9 @@ WHERE 1=1" + (extraFilter ?? string.Empty);
 
                 var query = @"
 SELECT
-    t.name AS Name,
-    OBJECT_NAME(t.parent_id) AS Value,
-    t.type_desc AS Type,
+    t.name AS [Name],
+    OBJECT_NAME(t.parent_id) AS [Value],
+    t.type_desc AS [Type],
     CONVERT(VARCHAR(30), t.create_date, 120) AS CreateDate,
     CONVERT(VARCHAR(30), t.modify_date, 120) AS ModifyDate
 FROM sys.triggers t

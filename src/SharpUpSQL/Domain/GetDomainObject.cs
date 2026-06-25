@@ -102,6 +102,17 @@ namespace SharpUpSQL.Domain
                 try
                 {
                     results = searcher.FindAll();
+                }
+                catch (DirectoryServicesCOMException ex)
+                {
+                    Console.Error.WriteLine(
+                        "LDAP query failed (0x" + ex.ErrorCode.ToString("X8") + "): " + ex.Message +
+                        ". Ensure the machine is domain-joined or pass -DomainController, -Username, and -Password.");
+                    yield break;
+                }
+
+                try
+                {
                     foreach (SearchResult result in results)
                     {
                         var domainObject = new DomainObjectResult();

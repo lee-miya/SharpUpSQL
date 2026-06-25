@@ -516,7 +516,7 @@ EXEC Sp_oamethod @fso, 'opentextfile' , @file Out, '{0}',1
 EXEC sp_oacreate 'scripting.filesystemobject', @o out 
 EXEC sp_oamethod @o, 'opentextfile', @f out, '{0}', 1 
 EXEC @ret = sp_oamethod @f, 'readall', @FileContents out 
-SELECT @FileContents as output", outputPath);
+SELECT @FileContents AS [output]", outputPath);
 
             var output = CollectOutputColumn(options, readQuery, "output", request.Verbose, request.SuppressVerbose);
 

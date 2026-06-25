@@ -47,7 +47,7 @@ SELECT
     CAST(SERVERPROPERTY('ProductMajorVersion') AS VARCHAR(10)) AS SQLServerMajorVersion,
     CAST(SERVERPROPERTY('Edition') AS VARCHAR(200)) AS SQLServerEdition,
     CAST(SERVERPROPERTY('ProductLevel') AS VARCHAR(50)) AS SQLServerServicePack,
-    CAST(SERVERPROPERTY('IsClustered') AS VARCHAR(5)) AS Clustered,
+    CAST(SERVERPROPERTY('IsClustered') AS VARCHAR(5)) AS [Clustered],
     CAST(SERVERPROPERTY('IsHadrEnabled') AS VARCHAR(5)) AS HadrEnabled,
     SYSTEM_USER AS Currentlogin,
     CAST(IS_SRVROLEMEMBER('sysadmin') AS VARCHAR(5)) AS IsSysadmin,
@@ -180,7 +180,7 @@ SELECT
     CASE a.server_id WHEN 0 THEN 'Local' ELSE 'Remote' END AS DatabaseLinkLocation,
     a.product AS Product,
     a.provider AS Provider,
-    a.catalog AS Catalog,
+    a.catalog AS [Catalog],
     CASE b.uses_self_credential WHEN 1 THEN 'Uses Self Credentials' ELSE c.name END AS LocalLogin,
     b.remote_name AS RemoteLoginName,
     CAST(a.is_rpc_out_enabled AS VARCHAR(5)) AS is_rpc_out_enabled,
@@ -305,7 +305,7 @@ SELECT
 
                 var tableFilter = SqlValueFormatter.LikeFilter("t.TABLE_NAME", tableName);
                 var query = string.Format(@"
-USE {0};
+USE [{0}];
 SELECT
     t.TABLE_CATALOG AS DatabaseName,
     t.TABLE_SCHEMA AS SchemaName,
@@ -407,7 +407,7 @@ ORDER BY t.TABLE_SCHEMA, t.TABLE_NAME",
                 }
 
                 var query = string.Format(@"
-USE {0};
+USE [{0}];
 SELECT
     t.TABLE_CATALOG AS DatabaseName,
     t.TABLE_SCHEMA AS SchemaName,
@@ -486,7 +486,7 @@ ORDER BY t.TABLE_SCHEMA, t.TABLE_NAME, c.ORDINAL_POSITION",
 
                 var sampleQuery = string.Format(@"
 USE {0};
-SELECT TOP {1} CAST({2} AS VARCHAR(8000)) AS Sample
+SELECT TOP {1} CAST({2} AS VARCHAR(8000)) AS [Sample]
 FROM {3}.{4}
 WHERE {2} IS NOT NULL",
                     SqlValueFormatter.BracketIdentifier(col.DatabaseName),
@@ -497,7 +497,7 @@ WHERE {2} IS NOT NULL",
 
                 var countQuery = string.Format(@"
 USE {0};
-SELECT CAST(COUNT({1}) AS VARCHAR(20)) AS RowCount
+SELECT CAST(COUNT({1}) AS VARCHAR(20)) AS [RowCount]
 FROM {2}.{3}
 WHERE {1} IS NOT NULL",
                     SqlValueFormatter.BracketIdentifier(col.DatabaseName),
@@ -574,7 +574,7 @@ SELECT
     CONVERT(VARCHAR(30), job.date_created, 120) AS Date_Created,
     CAST(steps.last_run_date AS VARCHAR(20)) AS Last_Run_Date,
     CAST(job.enabled AS VARCHAR(5)) AS Enabled,
-    steps.server AS Server,
+    steps.server AS [Server],
     steps.step_name AS Step_Name,
     steps.subsystem AS SubSystem,
     steps.command AS Command

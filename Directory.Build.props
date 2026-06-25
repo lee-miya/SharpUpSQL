@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <!--
+    PathMap rewrites source paths stored in PDB files at compile time.
+    Stack traces then show "./File.cs" instead of "D:\build\machine\src\...\File.cs".
+    Requires MSBuild 15+ / Roslyn (Visual Studio 2017 or Build Tools).
+  -->
+  <PropertyGroup>
+    <PathMap>$(MSBuildProjectDirectory)=.</PathMap>
+  </PropertyGroup>
+</Project>

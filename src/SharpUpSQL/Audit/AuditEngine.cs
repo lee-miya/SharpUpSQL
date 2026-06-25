@@ -110,7 +110,7 @@ namespace SharpUpSQL.Audit
             }
 
             var query = "SELECT IS_SRVROLEMEMBER('sysadmin', " +
-                        SqlValueFormatter.QuoteLiteral(login) + ") AS Status";
+                        SqlValueFormatter.QuoteLiteral(login) + ") AS [Status]";
             var rows = QueryExecutor.ExecuteQuery(options, query, null, true);
             if (rows.Count == 0)
             {
@@ -1247,7 +1247,7 @@ namespace SharpUpSQL.Audit
                 string name;
                 try
                 {
-                    var rows = Query(context, "SELECT SUSER_NAME(" + id + ") AS Name");
+                    var rows = Query(context, "SELECT SUSER_NAME(" + id + ") AS [Name]");
                     if (rows.Count == 0)
                     {
                         continue;
@@ -1268,7 +1268,7 @@ namespace SharpUpSQL.Audit
                 string type;
                 try
                 {
-                    var typeRows = Query(context, "SELECT SUSER_SNAME(" + id + ") AS Name, type_desc AS Type FROM sys.server_principals WHERE principal_id = " + id);
+                    var typeRows = Query(context, "SELECT SUSER_SNAME(" + id + ") AS [Name], type_desc AS [Type] FROM sys.server_principals WHERE principal_id = " + id);
                     if (typeRows.Count == 0)
                     {
                         continue;

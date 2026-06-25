@@ -37,6 +37,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestFramework.cs" />
     <Compile Include="CoreHelperTests.cs" />
+    <Compile Include="SqlQueryStaticTests.cs" />
     <Compile Include="CommandRegistryTests.cs" />
     <Compile Include="Program.cs" />
   </ItemGroup>

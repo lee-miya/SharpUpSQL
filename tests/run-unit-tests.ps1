@@ -31,6 +31,7 @@ $testSources = @(
     (Join-Path $root 'tests\SharpUpSQL.Tests\Properties\AssemblyInfo.cs'),
     (Join-Path $root 'tests\SharpUpSQL.Tests\TestFramework.cs'),
     (Join-Path $root 'tests\SharpUpSQL.Tests\CoreHelperTests.cs'),
+    (Join-Path $root 'tests\SharpUpSQL.Tests\SqlQueryStaticTests.cs'),
     (Join-Path $root 'tests\SharpUpSQL.Tests\CommandRegistryTests.cs'),
     (Join-Path $root 'tests\SharpUpSQL.Tests\Program.cs')
 )

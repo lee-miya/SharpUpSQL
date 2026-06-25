@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using SharpUpSQL.Commands;
+using SharpUpSQL.Core.Helpers;
 using SharpUpSQL.Core.Output;
 
 namespace SharpUpSQL.Cli
@@ -62,7 +63,7 @@ namespace SharpUpSQL.Cli
                 Console.Error.WriteLine(ex.Message);
                 if (parsed.Verbose)
                 {
-                    Console.Error.WriteLine(ex.ToString());
+                    Console.Error.WriteLine(ExceptionFormatter.Format(ex, true));
                 }
 
                 return 1;

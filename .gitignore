@@ -5,6 +5,8 @@ lab/config/lab.settings.json
 artifacts/
 **/bin/
 **/obj/
+packages/
+tools/nuget.exe
 
 # IDE / OS
 .vs/

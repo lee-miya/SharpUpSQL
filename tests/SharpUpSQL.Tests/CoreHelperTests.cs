@@ -88,6 +88,22 @@ namespace SharpUpSQL.Tests
                 },
                 new TestCase
                 {
+                    Name = "ExceptionFormatter strips source paths from stack traces",
+                    Body = () =>
+                    {
+                        var sanitized = ExceptionFormatter.SanitizeStackTrace(
+                            "   at SharpUpSQL.Core.Execution.QueryExecutor.ExecuteQuery() in D:\\Project\\csProject\\SharpUpSQL\\src\\QueryExecutor.cs:line 65");
+                        TestAssert.True(
+                            !sanitized.Contains("D:\\Project"),
+                            "Build path should be removed from stack trace");
+                        TestAssert.Contains(
+                            sanitized,
+                            "QueryExecutor.ExecuteQuery()",
+                            "Method name should remain");
+                    }
+                },
+                new TestCase
+                {
                     Name = "JsonPipeline round-trips pipeline objects",
                     Body = () =>
                     {

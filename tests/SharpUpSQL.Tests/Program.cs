@@ -14,6 +14,7 @@ namespace SharpUpSQL.Tests
 
             var tests = new List<TestCase>();
             tests.AddRange(CoreHelperTests.Cases());
+            tests.AddRange(SqlQueryStaticTests.Cases());
             tests.AddRange(CommandRegistryTests.Cases(exe));
 
             return TestRunner.Run(tests);
