@@ -66,7 +66,7 @@ SELECT name AS [Name], type_desc AS [Type], create_date AS CreateDate
 FROM sys.database_principals
 WHERE type = 'R' AND is_fixed_role = 0";
 
-                foreach (var row in QueryExecutor.ExecuteQuery(dbOptions, query, verbose, suppressVerbose))
+                foreach (var row in SqlEnumerationEngine.EnumerateRows(dbOptions, query, verbose, suppressVerbose))
                 {
                     var result = new SqlGenericRowResult
                     {
@@ -102,7 +102,7 @@ SELECT
     rm.role_principal_id AS [Type]
 FROM sys.database_role_members rm";
 
-                foreach (var row in QueryExecutor.ExecuteQuery(dbOptions, query, verbose, suppressVerbose))
+                foreach (var row in SqlEnumerationEngine.EnumerateRows(dbOptions, query, verbose, suppressVerbose))
                 {
                     var result = new SqlGenericRowResult
                     {
@@ -137,7 +137,7 @@ SELECT
     USER_NAME(principal_id) AS [Value]
 FROM sys.schemas";
 
-                foreach (var row in QueryExecutor.ExecuteQuery(dbOptions, query, verbose, suppressVerbose))
+                foreach (var row in SqlEnumerationEngine.EnumerateRows(dbOptions, query, verbose, suppressVerbose))
                 {
                     var result = new SqlGenericRowResult
                     {
@@ -175,7 +175,7 @@ SELECT
 FROM sys.database_principals
 WHERE type IN ('S','U','G','C','E','X')";
 
-                foreach (var row in QueryExecutor.ExecuteQuery(dbOptions, query, verbose, suppressVerbose))
+                foreach (var row in SqlEnumerationEngine.EnumerateRows(dbOptions, query, verbose, suppressVerbose))
                 {
                     var result = new SqlGenericRowResult
                     {
@@ -529,7 +529,7 @@ SELECT
     CONVERT(VARCHAR(30), v.modify_date, 120) AS ModifyDate
 FROM sys.views v";
 
-                foreach (var row in QueryExecutor.ExecuteQuery(dbOptions, query, verbose, suppressVerbose))
+                foreach (var row in SqlEnumerationEngine.EnumerateRows(dbOptions, query, verbose, suppressVerbose))
                 {
                     var result = new SqlGenericRowResult
                     {
@@ -752,10 +752,9 @@ SELECT
     CONVERT(VARCHAR(30), p.create_date, 120) AS CreateDate,
     CONVERT(VARCHAR(30), p.modify_date, 120) AS ModifyDate
 FROM sys.procedures p
-LEFT JOIN sys.sql_modules m ON p.object_id = m.object_id
 WHERE 1=1" + (extraFilter ?? string.Empty);
 
-                foreach (var row in QueryExecutor.ExecuteQuery(dbOptions, query, verbose, suppressVerbose))
+                foreach (var row in SqlEnumerationEngine.EnumerateRows(dbOptions, query, verbose, suppressVerbose))
                 {
                     var result = new SqlGenericRowResult
                     {
@@ -798,7 +797,7 @@ SELECT
 FROM sys.triggers t
 WHERE 1=1" + extraFilter;
 
-                foreach (var row in QueryExecutor.ExecuteQuery(dbOptions, query, verbose, suppressVerbose))
+                foreach (var row in SqlEnumerationEngine.EnumerateRows(dbOptions, query, verbose, suppressVerbose))
                 {
                     var result = new SqlGenericRowResult
                     {

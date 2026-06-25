@@ -102,6 +102,8 @@
 
     <Compile Include="Execution\QueryExecutor.cs" />
 
+    <Compile Include="Execution\SqlPermissionHelper.cs" />
+
     <Compile Include="Helpers\InstanceHelper.cs" />
 
     <Compile Include="Helpers\InstanceParser.cs" />
